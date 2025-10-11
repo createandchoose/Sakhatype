@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakhatype - Якутский Typing Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+            background: #323437;
+            color: #d1d0c5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: #2c2e31;
+            border-bottom: 1px solid #3a3c41;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #e2b714;
+        }
+
+        .logo-icon {
+            font-size: 18px;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #d1d0c5;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .controls {
+            background: #2c2e31;
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            color: #646669;
+            font-size: 16px;
+        }
+
+        .controls button {
+            background: transparent;
+            border: none;
+            color: #646669;
+            cursor: pointer;
+            padding: 8px 12px;
+            transition: all 0.2s;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .controls button:hover {
+            color: #e2b714;
+        }
+
+        .controls button.active {
+            color: #e2b714;
+            background: #3a3c41;
+        }
+
+        .typing-container {
+            max-width: 1000px;
+            width: 100%;
+            padding: 60px;
+            position: relative;
+        }
+
+        .category {
+            text-align: center;
+            font-size: 14px;
+            color: #646669;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .text-display {
+            font-size: 32px;
+            line-height: 1.8;
+            color: #646669;
+            margin-bottom: 40px;
+            position: relative;
+            cursor: text;
+            user-select: none;
+            letter-spacing: 1px;
+        }
+
+        .word {
+            display: inline-block;
+            margin: 0 8px 8px 0;
+            position: relative;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .word.active {
+            border-bottom-color: #646669;
+        }
+
+        .char {
+            position: relative;
+            display: inline-block;
+        }
+
+        .char.correct {
+            color: #d1d0c5;
+        }
+
+        .char.incorrect {
+            color: #ca4754;
+        }
+
+        .char.current::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2b714;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: bold;
+            color: #e2b714;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #646669;
+            margin-top: 8px;
+            text-transform: lowercase;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            color: #e2b714;
+        }
+
+        .results .final-stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin: 40px 0;
+        }
+
+        .results .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 14px 35px;
+            font-size: 15px;
+            border: 2px solid #646669;
+            background: transparent;
+            color: #d1d0c5;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: #e2b714;
+            border-color: #e2b714;
+            color: #323437;
+        }
+
+        footer {
+            padding: 20px 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #646669;
+            border-top: 1px solid #3a3c41;
+            background: #2c2e31;
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #e2b714;
+        }
+
+        .restart-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #646669;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+        }
+
+        .restart-btn:hover {
+            color: #e2b714;
+            transform: rotate(180deg);
+        }
+
+        .focus-message {
+            text-align: center;
+            color: #646669;
+            font-size: 18px;
+            margin-top: 20px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .focus-message.hidden {
+            opacity: 0;
+        }
+
+        .hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>Sakhatype</span>
+            <span class="logo-icon">❄️ Лицензбортэх</span>
+        </div>
+        <div class="user">
+            <span>👤</span>
+            <span>createandchoose</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button class="time-btn" data-time="15">время</button>
+            <span style="color: #3a3c41;">|</span>
+            <button class="time-btn active" data-time="15">15</button>
+            <button class="time-btn" data-time="30">30</button>
+            <button class="time-btn" data-time="60">60</button>
+            <button class="time-btn" data-time="120">120</button>
+        </div>
+
+        <div class="typing-container">
+            <div class="timer" id="timer">15</div>
+            <button class="restart-btn" onclick="restartTest()">↻</button>
+            
+            <div class="category">📝 Саҥалыы</div>
+            
+            <div class="text-display" id="textDisplay" tabindex="0"></div>
+            
+            <div class="focus-message" id="focusMessage">Нажмите здесь или начните печатать</div>
+            
+            <input type="text" class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">wpm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">точность</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Результаты теста</h2>
+            
+            <div class="chart-container">
+                <canvas id="resultChart"></canvas>
+            </div>
+            
+            <div class="final-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalWpm">0</div>
+                    <div class="stat-label">wpm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalAccuracy">100%</div>
+                    <div class="stat-label">точность</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalRaw">0</div>
+                    <div class="stat-label">raw</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalBurst">0</div>
+                    <div class="stat-label">burst</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalErrors">0</div>
+                    <div class="stat-label">errors</div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="restartTest()">↻ еще раз</button>
+                <button class="btn" onclick="shareResults()">📤 поделиться</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div>ОнОһууз DotX team | theme select: ЯktStyle</div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        const texts = [
+            "Технологии меняют мир каждый день. Новые изобретения делают нашу жизнь проще и интереснее. Мы живем в удивительное время, когда все возможно.",
+            "Якутия - удивительный край вечной мерзлоты и белых ночей. Здесь живут сильные и добрые люди, которые любят свою землю.",
+            "Саха сирэ айыл5а кыра туймаада. Бу олох уонна дойду сайдыытын туһунан. Биһиги атыыбыт дойдубуту таптыыбыт.",
+            "Программирование открывает безграничные возможности для творчества и инноваций. Каждая строка кода может изменить мир к лучшему.",
+            "Северное сияние танцует в небе озаряя бескрайние просторы тайги и тундры. Это магическое явление природы завораживает своей красотой."
+        ];
+
+        let currentText = '';
+        let words = [];
+        let currentWordIndex = 0;
+        let currentCharIndex = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let selectedTime = 15;
+        let timeLeft = 15;
+        let isTestActive = false;
+        let correctChars = 0;
+        let totalChars = 0;
+        let inputValue = '';
+        let wordHistory = []; // История правильности каждого символа в словах
+        let wpmHistory = []; // История WPM по секундам
+        let rawHistory = []; // История raw WPM
+        let errorsHistory = []; // История ошибок
+        let burstWpm = 0; // Максимальная скорость
+        let totalErrors = 0; // Общее количество ошибок (включая исправленные)
+        let currentErrors = 0; // Текущие неисправленные ошибки
+        let errorTimestamps = []; // Временные метки ошибок для графика
+
+        const textDisplay = document.getElementById('textDisplay');
+        const hiddenInput = document.getElementById('hiddenInput');
+        const focusMessage = document.getElementById('focusMessage');
+
+        function initTest() {
+            currentText = texts[Math.floor(Math.random() * texts.length)];
+            words = currentText.split(' ');
+            currentWordIndex = 0;
+            currentCharIndex = 0;
+            correctChars = 0;
+            totalChars = 0;
+            timeLeft = selectedTime;
+            isTestActive = false;
+            startTime = null;
+            inputValue = '';
+            wordHistory = [];
+            wpmHistory = [];
+            rawHistory = [];
+            errorsHistory = [];
+            burstWpm = 0;
+            totalErrors = 0;
+            currentErrors = 0;
+            errorTimestamps = [];
+            
+            renderText();
+            
+            hiddenInput.value = '';
+            hiddenInput.disabled = false;
+            document.getElementById('timer').textContent = selectedTime;
+            document.getElementById('wpm').textContent = '0';
+            document.getElementById('accuracy').textContent = '100%';
+            document.getElementById('results').classList.remove('show');
+            document.querySelector('.typing-container').style.display = 'block';
+            focusMessage.classList.remove('hidden');
+            
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function renderText() {
+            textDisplay.innerHTML = '';
+            words.forEach((word, wordIdx) => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word';
+                
+                word.split('').forEach((char, charIdx) => {
+                    const charSpan = document.createElement('span');
+                    charSpan.className = 'char';
+                    charSpan.textContent = char;
+                    
+                    if (wordIdx === currentWordIndex && charIdx === currentCharIndex) {
+                        charSpan.classList.add('current');
+                    }
+                    
+                    wordSpan.appendChild(charSpan);
+                });
+                
+                textDisplay.appendChild(wordSpan);
+            });
+        }
+
+        function updateDisplay() {
+            const allChars = textDisplay.querySelectorAll('.char');
+            const allWords = textDisplay.querySelectorAll('.word');
+            let charIndex = 0;
+            
+            // Убираем класс active со всех слов
+            allWords.forEach(w => w.classList.remove('active'));
+            
+            // Добавляем класс active к текущему слову
+            if (allWords[currentWordIndex]) {
+                allWords[currentWordIndex].classList.add('active');
+            }
+            
+            words.forEach((word, wordIdx) => {
+                for (let i = 0; i < word.length; i++) {
+                    const char = allChars[charIndex];
+                    char.classList.remove('correct', 'incorrect', 'current');
+                    
+                    if (wordIdx < currentWordIndex) {
+                        // Уже напечатанные слова - используем сохраненную историю
+                        if (wordHistory[wordIdx] && wordHistory[wordIdx][i]) {
+                            char.classList.add(wordHistory[wordIdx][i]);
+                        }
+                    } else if (wordIdx === currentWordIndex) {
+                        // Текущее слово
+                        if (i < inputValue.length) {
+                            if (inputValue[i] === word[i]) {
+                                char.classList.add('correct');
+                            } else {
+                                char.classList.add('incorrect');
+                            }
+                        } else if (i === inputValue.length) {
+                            char.classList.add('current');
+                        }
+                    }
+                    
+                    charIndex++;
+                }
+            });
+        }
+
+        function startTimer() {
+            if (isTestActive) return;
+            isTestActive = true;
+            startTime = Date.now();
+            focusMessage.classList.add('hidden');
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                // Записываем статистику каждую секунду
+                const elapsedMinutes = (Date.now() - startTime) / 60000;
+                const wordsTyped = correctChars / 5;
+                const wpm = Math.round(wordsTyped / elapsedMinutes) || 0;
+                const rawWpm = Math.round((totalChars / 5) / elapsedMinutes) || 0;
+                
+                wpmHistory.push(wpm);
+                rawHistory.push(rawWpm);
+                errorsHistory.push(currentErrors);
+                
+                if (wpm > burstWpm) {
+                    burstWpm = wpm;
+                }
+                
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }, 1000);
+        }
+
+        function updateStats() {
+            if (!startTime) return;
+            
+            const elapsedMinutes = (Date.now() - startTime) / 60000;
+            const wordsTyped = correctChars / 5;
+            const wpm = Math.round(wordsTyped / elapsedMinutes) || 0;
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            
+            document.getElementById('wpm').textContent = wpm;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function endTest() {
+            clearInterval(timerInterval);
+            isTestActive = false;
+            hiddenInput.disabled = true;
+            
+            const elapsedMinutes = selectedTime / 60;
+            const wordsTyped = correctChars / 5;
+            const wpm = Math.round(wordsTyped / elapsedMinutes) || 0;
+            const rawWpm = Math.round((totalChars / 5) / elapsedMinutes) || 0;
+            const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+            
+            document.getElementById('finalWpm').textContent = wpm;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('finalRaw').textContent = rawWpm;
+            document.getElementById('finalBurst').textContent = burstWpm;
+            document.getElementById('finalErrors').textContent = totalErrors;
+            
+            document.querySelector('.typing-container').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+            
+            // Создаем график
+            createResultChart();
+        }
+
+        function createResultChart() {
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            
+            // Уничтожаем старый график если есть
+            if (window.resultChartInstance) {
+                window.resultChartInstance.destroy();
+            }
+            
+            const labels = wpmHistory.map((_, i) => i + 1);
+            
+            // Создаем массив для точек ошибок
+            const errorPoints = labels.map(second => {
+                const errorsAtThisSecond = errorTimestamps.filter(t => t === second - 1).length;
+                return errorsAtThisSecond > 0 ? errorsAtThisSecond : null;
+            });
+            
+            window.resultChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'wpm',
+                            data: wpmHistory,
+                            borderColor: '#e2b714',
+                            backgroundColor: 'rgba(226, 183, 20, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#e2b714',
+                        },
+                        {
+                            label: 'raw',
+                            data: rawHistory,
+                            borderColor: '#646669',
+                            backgroundColor: 'rgba(100, 102, 105, 0.05)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: '#646669',
+                            borderDash: [5, 5]
+                        },
+                        {
+                            label: 'errors',
+                            data: errorPoints,
+                            borderColor: 'transparent',
+                            backgroundColor: '#ca4754',
+                            borderWidth: 0,
+                            tension: 0,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: '#ca4754',
+                            pointBorderColor: '#ca4754',
+                            pointBorderWidth: 2,
+                            showLine: false,
+                            yAxisID: 'y1',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#d1d0c5',
+                                font: {
+                                    size: 13,
+                                    family: "'SF Mono', 'Monaco', monospace"
+                                },
+                                padding: 15,
+                                usePointStyle: true,
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#2c2e31',
+                            titleColor: '#e2b714',
+                            bodyColor: '#d1d0c5',
+                            borderColor: '#646669',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                title: function(context) {
+                                    return 'Секунда ' + context[0].label;
+                                },
+                                label: function(context) {
+                                    if (context.dataset.label === 'errors') {
+                                        return context.raw ? `ошибки: ${context.raw}` : null;
+                                    }
+                                    return context.dataset.label + ': ' + context.raw;
+                                }
+                            },
+                            filter: function(tooltipItem) {
+                                if (tooltipItem.dataset.label === 'errors') {
+                                    return tooltipItem.raw !== null;
+                                }
+                                return true;
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#3a3c41',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#646669',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'время (секунды)',
+                                color: '#646669',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: {
+                                color: '#3a3c41',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#646669',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'words per minute',
+                                color: '#646669',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: '#ca4754',
+                                font: {
+                                    size: 11
+                                },
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'ошибки',
+                                color: '#ca4754',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function restartTest() {
+            initTest();
+            setTimeout(() => hiddenInput.focus(), 100);
+        }
+
+        function shareResults() {
+            const wpm = document.getElementById('finalWpm').textContent;
+            const accuracy = document.getElementById('finalAccuracy').textContent;
+            const burst = document.getElementById('finalBurst').textContent;
+            const text = `Мой результат на Sakhatype:\n💨 WPM: ${wpm}\n🎯 Точность: ${accuracy}\n⚡ Burst: ${burst}\n\nПопробуй сам! 🔥`;
+            
+            if (navigator.share) {
+                navigator.share({ text: text });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Результат скопирован в буфер обмена!');
+            }
+        }
+
+        hiddenInput.addEventListener('input', (e) => {
+            if (!isTestActive) startTimer();
+            
+            const newValue = e.target.value;
+            const oldLength = inputValue.length;
+            
+            // Проверяем если нажат пробел
+            if (newValue.endsWith(' ')) {
+                const typedWord = inputValue.trim();
+                const currentWord = words[currentWordIndex];
+                
+                // Сохраняем историю правильности для текущего слова
+                wordHistory[currentWordIndex] = [];
+                
+                // Подсчитываем правильность слова
+                for (let i = 0; i < Math.max(typedWord.length, currentWord.length); i++) {
+                    totalChars++;
+                    if (i < typedWord.length && i < currentWord.length && typedWord[i] === currentWord[i]) {
+                        correctChars++;
+                        wordHistory[currentWordIndex][i] = 'correct';
+                    } else {
+                        wordHistory[currentWordIndex][i] = 'incorrect';
+                        currentErrors++;
+                    }
+                }
+                
+                // Переходим к следующему слову
+                currentWordIndex++;
+                inputValue = '';
+                e.target.value = '';
+                
+                // Если слова закончились, загружаем новый текст
+                if (currentWordIndex >= words.length) {
+                    currentText = texts[Math.floor(Math.random() * texts.length)];
+                    words = currentText.split(' ');
+                    currentWordIndex = 0;
+                    wordHistory = [];
+                    renderText();
+                }
+                
+                updateDisplay();
+                updateStats();
+            } else {
+                // Обычный ввод символов
+                const currentWord = words[currentWordIndex];
+                const currentCharIdx = newValue.length - 1;
+                
+                // Если добавлен символ (не удаление)
+                if (newValue.length > oldLength) {
+                    totalChars++;
+                    
+                    // Проверяем правильность нового символа
+                    if (currentCharIdx < currentWord.length && newValue[currentCharIdx] === currentWord[currentCharIdx]) {
+                        correctChars++;
+                    } else {
+                        // Ошибка - записываем временную метку
+                        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                        errorTimestamps.push(elapsedSeconds);
+                        totalErrors++;
+                        currentErrors++;
+                    }
+                } 
+                // Если удален символ (backspace)
+                else if (newValue.length < oldLength) {
+                    if (totalChars > 0) totalChars--;
+                    
+                    // Если удаленный символ был правильным
+                    if (oldLength <= currentWord.length && inputValue[oldLength - 1] === currentWord[oldLength - 1]) {
+                        if (correctChars > 0) correctChars--;
+                    } else {
+                        // Удален неправильный символ - уменьшаем текущие ошибки
+                        if (currentErrors > 0) currentErrors--;
+                    }
+                }
+                
+                inputValue = newValue;
+                updateDisplay();
+                updateStats();
+            }
+        });
+
+        textDisplay.addEventListener('click', () => {
+            hiddenInput.focus();
+        });
+
+        hiddenInput.addEventListener('focus', () => {
+            focusMessage.classList.add('hidden');
+        });
+
+        hiddenInput.addEventListener('blur', () => {
+            if (!isTestActive) {
+                focusMessage.classList.remove('hidden');
+            }
+        });
+
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const time = parseInt(btn.dataset.time);
+                if (!time) return;
+                
+                selectedTime = time;
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                restartTest();
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            // Фокус на скрытое поле при любой печати
+            if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                hiddenInput.focus();
+            }
+            
+            // Ctrl+Backspace - удалить слово
+            if (e.ctrlKey && e.key === 'Backspace') {
+                e.preventDefault();
+                inputValue = '';
+                hiddenInput.value = '';
+                updateDisplay();
+            }
+            
+            // Tab или Escape - перезапуск теста
+            if ((e.key === 'Tab' || e.key === 'Escape') && !document.getElementById('results').classList.contains('show')) {
+                e.preventDefault();
+                restartTest();
+            }
+        });
+
+        initTest();
+        hiddenInput.focus();
+    </script>
+</body>
+</html>

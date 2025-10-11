@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sakhatype - Якутский Typing Test</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>Sakhatype</span>
+            <span class="logo-icon">❄️ Лицензбортэх</span>
+        </div>
+        <div class="user">
+            <span>👤</span>
+            <span>createandchoose</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button class="time-btn" data-time="15">время</button>
+            <span style="color: #3a3c41;">|</span>
+            <button class="time-btn active" data-time="15">15</button>
+            <button class="time-btn" data-time="30">30</button>
+            <button class="time-btn" data-time="60">60</button>
+            <button class="time-btn" data-time="120">120</button>
+        </div>
+
+        <div class="typing-container">
+            <div class="timer" id="timer">15</div>
+            <button class="restart-btn" onclick="restartTest()">↻</button>
+            
+            <div class="text-display" id="textDisplay" tabindex="0"></div>
+            
+            <div class="focus-message" id="focusMessage">Нажмите здесь или начните печатать</div>
+            
+            <input type="text" class="hidden-input" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">wpm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">точность</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Результаты теста</h2>
+            
+            <div class="chart-container">
+                <canvas id="resultChart"></canvas>
+            </div>
+            
+            <div class="final-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalWpm">0</div>
+                    <div class="stat-label">wpm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalAccuracy">100%</div>
+                    <div class="stat-label">точность</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalRaw">0</div>
+                    <div class="stat-label">raw</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalBurst">0</div>
+                    <div class="stat-label">burst</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalErrors">0</div>
+                    <div class="stat-label">errors</div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn" onclick="restartTest()">↻ еще раз</button>
+                <button class="btn" onclick="shareResults()">📤 поделиться</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div>ОнОһууз DotX team | theme select: ЯktStyle</div>
+    </footer>
+    <script src="/script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</body>
+</html>

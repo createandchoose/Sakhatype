@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Selector Perfect</title>
+<style>
+body {
+  background: #0d0d0d;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+/* Панель выбора времени */
+.time-toolbar {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border-radius: 16px;
+}
+
+/* Кнопки */
+.time-btn {
+  position: relative;
+  z-index: 1;
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 10px 22px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.2s ease;
+}
+
+.time-btn:hover {
+  color: #fff;
+}
+
+/* Плавающий индикатор-подсветка */
+.indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;                 /* высота подсветки */
+  background: #3b82f6;          /* синий фон */
+  border-radius: 10px;
+  z-index: 0;
+  transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;         /* чтобы не мешал клику по кнопкам */
+}
+</style>
+</head>
+<body>
+
+<div class="time-toolbar">
+  <div class="indicator"></div>
+  <button class="time-btn" data-time="15">15</button>
+  <button class="time-btn" data-time="30">30</button>
+  <button class="time-btn" data-time="60">60</button>
+  <button class="time-btn" data-time="120">120</button>
+</div>
+
+<script>
+// Элементы
+const toolbar = document.querySelector('.time-toolbar');
+const buttons = toolbar.querySelectorAll('.time-btn');
+const indicator = toolbar.querySelector('.indicator');
+
+let activeBtn = buttons[0];
+
+// Функция движения индикатора
+function moveIndicator(btn) {
+  const rect = btn.getBoundingClientRect();
+  const parentRect = toolbar.getBoundingClientRect();
+  indicator.style.width = rect.width + 'px';
+  indicator.style.left = (rect.left - parentRect.left) + 'px';
+}
+
+// Инициализация
+moveIndicator(activeBtn);
+activeBtn.style.color = '#fff';
+
+// События кнопок
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeBtn = btn;
+    buttons.forEach(b => b.style.color = '#ccc');
+    btn.style.color = '#fff';
+    moveIndicator(btn);
+  });
+
+  btn.addEventListener('mouseenter', () => moveIndicator(btn));
+  btn.addEventListener('mouseleave', () => moveIndicator(activeBtn));
+});
+
+// Адаптивность при ресайзе окна
+window.addEventListener('resize', () => moveIndicator(activeBtn));
+</script>
+
+</body>
+</html>
