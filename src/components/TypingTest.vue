@@ -16,8 +16,8 @@
             v-for="(word, wordIdx) in store.words"
             :key="wordIdx"
             class="word"
-            :class="{ 
-              active: wordIdx === store.currentWordIndex && hasFocus && store.isTestActive 
+            :class="{
+              active: wordIdx === store.currentWordIndex && hasFocus && store.isTestActive,
             }"
           >
             <span
@@ -32,7 +32,7 @@
         </div>
 
         <div class="focus-message" :class="{ hidden: hasFocus || store.isTestActive }">
-          Нажмите здесь или начните печатать
+          Нажмите на текст и начните печатать
         </div>
 
         <input
@@ -127,16 +127,13 @@ const getCharClass = (wordIdx, charIdx) => {
   if (!hasFocus.value && !store.isTestActive) {
     return '' // Не показываем подсветку, если нет фокуса и тест не активен
   }
-  
+
   if (wordIdx < store.currentWordIndex) {
     return store.wordHistory[wordIdx]?.[charIdx] || ''
   } else if (wordIdx === store.currentWordIndex) {
     if (charIdx < store.inputValue.length)
-      return store.inputValue[charIdx] === store.words[wordIdx][charIdx]
-        ? 'correct'
-        : 'incorrect'
-    else if (charIdx === store.inputValue.length && hasFocus.value)
-      return 'current'
+      return store.inputValue[charIdx] === store.words[wordIdx][charIdx] ? 'correct' : 'incorrect'
+    else if (charIdx === store.inputValue.length && hasFocus.value) return 'current'
   }
   return ''
 }
@@ -299,14 +296,14 @@ onUnmounted(() => {
 }
 
 @media only screen and (max-width: 600px) {
-.text-display {
-  font-family: 'Benzin-Bold';
-  font-size: 20px;
-  line-height: 0.9;
-}
-.main {
+  .text-display {
+    font-family: 'Benzin-Bold';
+    font-size: 20px;
+    line-height: 0.9;
+  }
+  .main {
     padding: 0;
-}
+  }
 }
 
 .word {
@@ -314,7 +311,9 @@ onUnmounted(() => {
   margin: 0 8px 8px 0;
   position: relative;
   border-bottom: 2px solid transparent;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .word.active {
@@ -348,8 +347,14 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .stats {
