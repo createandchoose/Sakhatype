@@ -6,14 +6,14 @@
 </template>
 
 <script setup>
-import TypingTest from './components/TypingTest.vue';
+import TypingTest from './components/TypingTest.vue'
 </script>
 
 <style>
 @font-face {
-    font-family: 'Benzin-Bold';
-    src: url('fonts/Benzin-Bold.woff2') format('opentype');
-    font-weight: bold;
+  font-family: 'Benzin-Bold';
+  src: url('/fonts/Benzin-Bold.woff2') format('opentype');
+  font-weight: bold;
 }
 * {
   margin: 0;
