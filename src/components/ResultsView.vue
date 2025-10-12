@@ -59,13 +59,22 @@ let chartInstance = null
 // Функция для сохранения скриншота
 const saveScreenshot = async () => {
   try {
-    const canvasEl = document.querySelector('.chart-container')
+    const canvasEl = document.querySelector('.results')
     const screenshot = await html2canvas(canvasEl)
+
+    // Получаем текущее время
+    const now = new Date()
+    const pad = (n) => n.toString().padStart(2, '0')
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`
+
+    // Формируем динамическое имя файла
+    const fileName = `Sakhatype - ${dateStr} ${timeStr}.png`
 
     // Создаем ссылку для загрузки файла
     const link = document.createElement('a')
     link.href = screenshot.toDataURL()
-    link.download = 'Sakhatype - 10.10.2025 01-12-11.png'
+    link.download = fileName
     link.click()
   } catch (err) {
     console.error(err)
