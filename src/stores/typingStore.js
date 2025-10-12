@@ -118,15 +118,16 @@ export const useTypingStore = defineStore('typing', {
       this.startTime = Date.now()
       this.wordStartTime = Date.now()
 
-      this.wpmHistory = [0]
-      this.rawHistory = [0]
-      this.errorsHistory = [0]
-      this.burstHistory = [0]
+      // Инициализация пустых массивов без начальных нулей
+      this.wpmHistory = []
+      this.rawHistory = []
+      this.errorsHistory = []
+      this.burstHistory = []
 
       this.timerInterval = setInterval(() => {
         const elapsedSeconds = Math.floor((Date.now() - this.startTime) / 1000)
 
-        const windowSize = 3
+        const windowSize = Math.min(3, elapsedSeconds + 1) // Уменьшаем окно для первых секунд
         let correctSum = 0
         let totalSum = 0
         let errorSum = 0
@@ -139,13 +140,16 @@ export const useTypingStore = defineStore('typing', {
         const wpmNow = Math.round((correctSum / windowSize / 5) * 60)
         const rawNow = Math.round((totalSum / windowSize / 5) * 60)
 
-        this.wpmHistory.push(wpmNow)
-        this.rawHistory.push(rawNow)
-        this.errorsHistory.push(errorSum)
+        // Добавляем данные только если есть ненулевые значения
+        if (correctSum > 0 || totalSum > 0) {
+          this.wpmHistory.push(wpmNow)
+          this.rawHistory.push(rawNow)
+          this.errorsHistory.push(errorSum)
 
-        const burstNow = Math.max(...this.wpmHistory.slice(-windowSize))
-        this.burstHistory.push(burstNow)
-        if (burstNow > this.burstWpm) this.burstWpm = burstNow
+          const burstNow = Math.max(...this.wpmHistory.slice(-windowSize))
+          this.burstHistory.push(burstNow)
+          if (burstNow > this.burstWpm) this.burstWpm = burstNow
+        }
 
         this.timeLeft--
         if (this.timeLeft <= 0) {

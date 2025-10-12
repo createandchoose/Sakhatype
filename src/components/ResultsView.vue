@@ -144,8 +144,8 @@ const createChart = () => {
           borderWidth: 2,
           tension: 0.35,
           fill: false,
-          pointRadius: 2,
-          pointHoverRadius: 3,
+          pointRadius: 1,
+          pointHoverRadius: 2,
           pointBackgroundColor: '#84A5A9',
         },
         {
