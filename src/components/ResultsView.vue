@@ -1,12 +1,11 @@
-<!-- components/ResultsView.vue -->
 <template>
   <div class="results">
     <h2>Результаты теста</h2>
-    
+
     <div class="chart-container">
       <canvas ref="chartCanvas"></canvas>
     </div>
-    
+
     <div class="final-stats">
       <div class="stat-item">
         <div class="stat-value">{{ stats.wpm }}</div>
@@ -29,7 +28,7 @@
         <div class="stat-label">errors</div>
       </div>
     </div>
-    
+
     <div class="buttons">
       <button class="btn" @click="$emit('restart')">↻ еще раз</button>
       <button class="btn" @click="$emit('share')">📤 поделиться</button>
@@ -38,75 +37,62 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import { Chart, registerables } from 'chart.js';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { Chart, registerables } from 'chart.js'
 
-// Регистрируем необходимые компоненты Chart.js
-Chart.register(...registerables);
+Chart.register(...registerables)
 
 const props = defineProps({
-  stats: {
-    type: Object,
-    required: true
-  },
-  wpmHistory: {
-    type: Array,
-    default: () => []
-  },
-  rawHistory: {
-    type: Array,
-    default: () => []
-  },
-  errorTimestamps: {
-    type: Array,
-    default: () => []
-  }
-});
+  stats: { type: Object, required: true },
+  wpmHistory: { type: Array, default: () => [] },
+  rawHistory: { type: Array, default: () => [] },
+  burstHistory: { type: Array, default: () => [] },
+  errorTimestamps: { type: Array, default: () => [] },
+})
 
-defineEmits(['restart', 'share']);
+defineEmits(['restart', 'share'])
 
-const chartCanvas = ref(null);
-let chartInstance = null;
+const chartCanvas = ref(null)
+let chartInstance = null
 
-onMounted(() => {
-  createChart();
-});
+onMounted(() => createChart())
+onUnmounted(() => chartInstance?.destroy())
 
-onUnmounted(() => {
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-});
-
-// Следим за изменениями данных и обновляем график
 watch(
-  () => [props.wpmHistory, props.rawHistory, props.errorTimestamps],
+  () => [props.wpmHistory, props.rawHistory, props.errorTimestamps, props.burstHistory],
   () => {
     if (chartInstance) {
-      chartInstance.destroy();
-      nextTick(() => {
-        createChart();
-      });
+      chartInstance.destroy()
+      nextTick(createChart)
     }
   },
-  { deep: true }
-);
+  { deep: true },
+)
 
 const createChart = () => {
-  if (!chartCanvas.value) return;
+  if (!chartCanvas.value) return
 
-  const ctx = chartCanvas.value.getContext('2d');
-  const labels = props.wpmHistory.map((_, i) => i + 1);
-  
-  const errorPoints = labels.map(second => {
-    const errorsAtThisSecond = props.errorTimestamps.filter(t => t === second - 1).length;
-    return errorsAtThisSecond > 0 ? errorsAtThisSecond : null;
-  });
+  const ctx = chartCanvas.value.getContext('2d')
+  const labels = props.wpmHistory.map((_, i) => i + 1)
+
+  const errorPoints = labels.map((second) => {
+    const errorsAtThisSecond = props.errorTimestamps.filter((t) => t === second - 1).length
+    return errorsAtThisSecond > 0 ? errorsAtThisSecond : null
+  })
+
+  // Если burstHistory пуст — имитируем динамику на основе пиков WPM
+  const burstData = props.burstHistory.length
+    ? props.burstHistory
+    : props.wpmHistory.map((v, i, arr) => {
+        const prev = arr[i - 1] ?? v
+        const next = arr[i + 1] ?? v
+        return Math.max(v, prev, next)
+      })
 
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels,
       datasets: [
         {
           label: 'wpm',
@@ -131,7 +117,19 @@ const createChart = () => {
           pointRadius: 1,
           pointHoverRadius: 2,
           pointBackgroundColor: '#666666',
-          borderDash: [5, 5]
+          borderDash: [5, 5],
+        },
+        {
+          label: 'burst',
+          data: burstData,
+          borderColor: '#84A5A9',
+          backgroundColor: 'rgba(132, 165, 169, 0.15)',
+          borderWidth: 2,
+          tension: 0.35,
+          fill: false,
+          pointRadius: 2,
+          pointHoverRadius: 3,
+          pointBackgroundColor: '#84A5A9',
         },
         {
           label: 'Сыыhалар',
@@ -144,32 +142,24 @@ const createChart = () => {
           pointHoverRadius: 6,
           pointBackgroundColor: '#ff0000',
           pointBorderColor: '#ff0000',
-          pointBorderWidth: 2,
           showLine: false,
           yAxisID: 'y1',
-        }
-      ]
+        },
+      ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        mode: 'index',
-        intersect: false,
-      },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
           display: true,
           position: 'top',
           labels: {
             color: '#000000',
-            font: {
-              size: 12,
-              family: "'SF Mono', 'Monaco', monospace"
-            },
+            font: { size: 12, family: "'SF Mono', 'Monaco', monospace" },
             padding: 15,
-            usePointStyle: false,
-          }
+          },
         },
         tooltip: {
           backgroundColor: '#ffffff',
@@ -178,100 +168,61 @@ const createChart = () => {
           borderColor: '#666666',
           borderWidth: 1,
           padding: 12,
-          displayColors: true,
           callbacks: {
-            title: function(context) {
-              return 'Секунда ' + context[0].label;
+            title: (ctx) => 'Секунда ' + ctx[0].label,
+            label: (ctx) => {
+              if (ctx.dataset.label === 'Сыыhалар') return ctx.raw ? `Сыыhалар: ${ctx.raw}` : null
+              return ctx.dataset.label + ': ' + ctx.raw
             },
-            label: function(context) {
-              if (context.dataset.label === 'errors') {
-                return context.raw ? `Сыыhалар: ${context.raw}` : null;
-              }
-              return context.dataset.label + ': ' + context.raw;
-            }
           },
-          filter: function(tooltipItem) {
-            if (tooltipItem.dataset.label === 'errors') {
-              return tooltipItem.raw !== null;
-            }
-            return true;
-          }
-        }
+          filter: (item) => (item.dataset.label === 'Сыыhалар' ? item.raw !== null : true),
+        },
       },
       scales: {
         x: {
-          grid: {
-            color: '#e0e0e0',
-            drawBorder: false,
-          },
-          ticks: {
-            color: '#666666',
-            font: {
-              size: 11
-            }
-          },
+          grid: { color: '#e0e0e0', drawBorder: false },
+          ticks: { color: '#666666', font: { size: 11 } },
           title: {
             display: true,
-            text: 'Бэриэмэ (h8кунндэннэн)',
+            text: 'Бэриэмэ (секунданнэн)',
             color: '#666666',
-            font: {
-              size: 12
-            }
-          }
+            font: { size: 12 },
+          },
         },
         y: {
           type: 'linear',
           display: true,
           position: 'left',
-          grid: {
-            color: '#e0e0e0',
-            drawBorder: false,
-          },
-          ticks: {
-            color: '#666666',
-            font: {
-              size: 11
-            }
-          },
+          grid: { color: '#e0e0e0', drawBorder: false },
+          ticks: { color: '#666666', font: { size: 11 } },
           title: {
             display: true,
             text: 'words per minute',
             color: '#666666',
-            font: {
-              size: 12
-            }
+            font: { size: 12 },
           },
-          beginAtZero: true
+          beginAtZero: true,
         },
         y1: {
           type: 'linear',
           display: true,
           position: 'right',
-          grid: {
-            drawOnChartArea: false,
-          },
-          ticks: {
-            color: '#ff0000',
-            font: {
-              size: 11
-            },
-            stepSize: 1
-          },
+          grid: { drawOnChartArea: false },
+          ticks: { color: '#ff0000', font: { size: 11 }, stepSize: 1 },
           title: {
             display: true,
             text: 'Сыыhалар',
             color: '#ff0000',
-            font: {
-              size: 12
-            }
+            font: { size: 12 },
           },
-          beginAtZero: true
-        }
-      }
-    }
-  });
-};
+          beginAtZero: true,
+        },
+      },
+    },
+  })
+}
 </script>
+
 <style scoped>
 .results {
   text-align: center;

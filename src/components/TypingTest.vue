@@ -66,6 +66,7 @@
         :stats="store.finalStats"
         :wpm-history="store.wpmHistory"
         :raw-history="store.rawHistory"
+        :burst-history="store.burstHistory"
         :error-timestamps="store.errorTimestamps"
         @restart="restartTest"
         @share="shareResults"
