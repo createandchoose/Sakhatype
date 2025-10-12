@@ -17,11 +17,7 @@
       >
         {{ time }}
       </div>
-      <div
-        class="indicator"
-        :class="{ visible: isIndicatorVisible }"
-        :style="indicatorStyle"
-      />
+      <div class="indicator" :class="{ visible: isIndicatorVisible }" :style="indicatorStyle" />
     </div>
   </div>
 </template>
@@ -30,7 +26,7 @@
 import { ref, watch, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
-  modelValue: { type: Number, required: true }
+  modelValue: { type: Number, required: true },
 })
 const emits = defineEmits(['update:modelValue'])
 
@@ -39,7 +35,7 @@ const toggleGroup = ref(null)
 const indicatorStyle = ref({
   width: '0px',
   left: '0px',
-  transform: 'scale(1)'
+  transform: 'scale(1)',
 })
 const isIndicatorVisible = ref(false)
 
@@ -56,7 +52,7 @@ const updateIndicator = (targetTime, isHover = false) => {
       indicatorStyle.value = {
         width: `${width}px`,
         left: `${offsetLeft}px`,
-        transform: isHover ? 'scale(1.05)' : 'scale(1)'
+        transform: isHover ? 'scale(1.05)' : 'scale(1)',
       }
       isIndicatorVisible.value = true
     }
@@ -85,7 +81,10 @@ const setButtonRef = (time) => (el) => {
   }
 }
 
-watch(() => props.modelValue, () => updateIndicator(props.modelValue))
+watch(
+  () => props.modelValue,
+  () => updateIndicator(props.modelValue),
+)
 onMounted(() => updateIndicator(props.modelValue))
 </script>
 
@@ -129,7 +128,9 @@ onMounted(() => updateIndicator(props.modelValue))
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
   position: relative;
   z-index: 1;
   min-width: 40px;
@@ -141,19 +142,21 @@ onMounted(() => updateIndicator(props.modelValue))
 }
 
 .time-btn.active {
-  color: #fff;
-  background-color: #3b82f6;
+  color: #000000;
+  background-color: rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
 
-.time-btn:focus {
+/* .time-btn:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-}
+} */
 
 .indicator {
   background: linear-gradient(135deg, #ef4444, #f97316); /* Red to orange gradient */
-  box-shadow: 0 3px 8px rgba(239, 68, 68, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 3px 8px rgba(239, 68, 68, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .indicator.visible {

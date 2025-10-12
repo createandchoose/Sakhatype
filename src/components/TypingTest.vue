@@ -389,6 +389,7 @@ onUnmounted(() => {
   margin-top: 20px;
   opacity: 1;
   transition: opacity 0.3s;
+  font-size: 12px;
 }
 
 .focus-message.hidden {

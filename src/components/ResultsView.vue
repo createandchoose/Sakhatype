@@ -25,13 +25,13 @@
       </div>
       <div class="stat-item">
         <div class="stat-value">{{ stats.totalErrors }}</div>
-        <div class="stat-label">errors</div>
+        <div class="stat-label">ошибки</div>
       </div>
     </div>
 
     <div class="buttons">
       <button class="btn" @click="$emit('restart')">↻ еще раз</button>
-      <button class="btn" @click="$emit('share')">📤 поделиться</button>
+      <button class="btn" @click="saveScreenshot">Сохранить скриншот</button>
     </div>
   </div>
 </template>
@@ -39,6 +39,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Chart, registerables } from 'chart.js'
+import html2canvas from 'html2canvas'
 
 Chart.register(...registerables)
 
@@ -50,10 +51,26 @@ const props = defineProps({
   errorTimestamps: { type: Array, default: () => [] },
 })
 
-defineEmits(['restart', 'share'])
+defineEmits(['restart'])
 
 const chartCanvas = ref(null)
 let chartInstance = null
+
+// Функция для сохранения скриншота
+const saveScreenshot = async () => {
+  try {
+    const canvasEl = document.querySelector('.chart-container')
+    const screenshot = await html2canvas(canvasEl)
+
+    // Создаем ссылку для загрузки файла
+    const link = document.createElement('a')
+    link.href = screenshot.toDataURL()
+    link.download = 'Sakhatype - 10.10.2025 01-12-11.png'
+    link.click()
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 onMounted(() => createChart())
 onUnmounted(() => chartInstance?.destroy())
@@ -132,7 +149,7 @@ const createChart = () => {
           pointBackgroundColor: '#84A5A9',
         },
         {
-          label: 'Сыыhалар',
+          label: 'Ошибки',
           data: errorPoints,
           borderColor: 'transparent',
           backgroundColor: '#ff0000',
@@ -171,11 +188,11 @@ const createChart = () => {
           callbacks: {
             title: (ctx) => 'Секунда ' + ctx[0].label,
             label: (ctx) => {
-              if (ctx.dataset.label === 'Сыыhалар') return ctx.raw ? `Сыыhалар: ${ctx.raw}` : null
+              if (ctx.dataset.label === 'Ошибки') return ctx.raw ? `Ошибки: ${ctx.raw}` : null
               return ctx.dataset.label + ': ' + ctx.raw
             },
           },
-          filter: (item) => (item.dataset.label === 'Сыыhалар' ? item.raw !== null : true),
+          filter: (item) => (item.dataset.label === 'Ошибки' ? item.raw !== null : true),
         },
       },
       scales: {
@@ -184,7 +201,7 @@ const createChart = () => {
           ticks: { color: '#666666', font: { size: 11 } },
           title: {
             display: true,
-            text: 'Бэриэмэ (секунданнэн)',
+            text: 'Время (секунды)',
             color: '#666666',
             font: { size: 12 },
           },
@@ -197,7 +214,7 @@ const createChart = () => {
           ticks: { color: '#666666', font: { size: 11 } },
           title: {
             display: true,
-            text: 'words per minute',
+            text: 'Скорость набора (слов/мин.)',
             color: '#666666',
             font: { size: 12 },
           },
@@ -211,7 +228,7 @@ const createChart = () => {
           ticks: { color: '#ff0000', font: { size: 11 }, stepSize: 1 },
           title: {
             display: true,
-            text: 'Сыыhалар',
+            text: 'Количество ошибок',
             color: '#ff0000',
             font: { size: 12 },
           },
