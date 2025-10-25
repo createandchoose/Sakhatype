@@ -1,16 +1,16 @@
-// src/stores/theme.ts
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', () => {
-  // 1. Реактивное состояние темы.
-  // Изначально берем из localStorage или ставим true (темная).
-  const isDark = ref(localStorage.getItem('theme') === 'dark' || true)
+  // Получаем значение темы из localStorage
+  const storedTheme = localStorage.getItem('theme')
+  // Если в localStorage нет значения, по умолчанию ставим true (темная)
+  const isDark = ref<boolean>(storedTheme ? storedTheme === 'dark' : true)
 
-  // 2. Действие: функция для переключения темы
+  // Функция для переключения темы
   function toggleDark() {
     isDark.value = !isDark.value
-    // Сохраняем в localStorage для запоминания
+    // Сохраняем текущее состояние темы в localStorage
     localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
   }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, type Ref } from 'vue'
 import { RotateCcw } from 'lucide-vue-next'
 import { useTheme } from '@/composables/useTheme'
 import { useControlStore } from '@/stores/control'
@@ -20,6 +20,7 @@ const hasFocus = ref(false)
 const showResults = ref(false)
 const currentLineIndex = ref(0)
 const textDisplayRef = ref<HTMLDivElement | null>(null)
+const lineOffset = ref(0)
 
 // Функция анимации чисел как в GTA
 const animateNumber = (from: number, to: number) => {
@@ -47,14 +48,20 @@ const animateNumber = (from: number, to: number) => {
 watch(
   () => control.selectedTime,
   (newVal, oldVal) => {
-    selectedTime.value = newVal
-    animateNumber(oldVal || displayTime.value, newVal)
-    setTime(newVal)
+    if (newVal !== undefined && oldVal !== undefined) {
+      selectedTime.value = newVal
+      animateNumber(oldVal, newVal)
+      setTime(newVal)
+    }
   },
 )
 
 // 🔁 следим за изменениями родителя → store
-watch(selectedTime, (val) => control.setTime(val))
+watch(selectedTime, (val) => {
+  if (val !== undefined) {
+    control.setTime(val)
+  }
+})
 
 // Отображаемое время (таймер или выбранное)
 const timeDisplay = computed(() => {
@@ -133,7 +140,7 @@ const updateLineOffset = () => {
   lineOffset.value = -(currentLine - 1) * lineHeight
 }
 
-const getCharClass = (wordIdx: number, charIdx: number) => {
+const getCharClass = (wordIdx: number, charIdx: number): string => {
   if (!hasFocus.value && !store.isTestActive) {
     return ''
   }
@@ -164,9 +171,12 @@ const handleKeyDown = (e: KeyboardEvent) => {
   }
 }
 
-const unsubscribe = store.$onAction(({ name, after }) => {
-  if (name === 'endTest') after(() => (showResults.value = true))
-})
+// Исправленная типизация для обработчика действий store
+const unsubscribe = store.$onAction(
+  ({ name, after }: { name: string; after: (callback: () => void) => void }) => {
+    if (name === 'endTest') after(() => (showResults.value = true))
+  },
+)
 
 onMounted(() => {
   store.initTest()

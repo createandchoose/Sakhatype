@@ -3,21 +3,26 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useTheme } from '@/composables/useTheme'
 import { useControlStore } from '@/stores/control'
 import { computed, ref, watchEffect } from 'vue'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { storeToRefs } from 'pinia'
+import { Alert } from '@/components/ui/alert'
 import { Clock5 } from 'lucide-vue-next'
 
-const { isDark } = useTheme()
+// Stores
 const control = useControlStore()
+const { selectedTime } = storeToRefs(control)
 
-// Доступные опции времени
+// Theme
+const { isDark } = useTheme()
+
+// Опции времени
 const timeOptions = [15, 30, 60, 120]
 
-// Тип текущего выбора (всегда "Время")
+// Тип всегда "Время"
 const currentType = ref<'Время'>('Время')
 
-// Выбранное значение времени
-const currentValue = computed({
-  get: () => String(control.selectedTime),
+// Значение времени для ToggleGroup
+const currentValue = computed<string>({
+  get: () => String(selectedTime.value),
   set: (value: string) => {
     const num = Number(value)
     if (!isNaN(num)) control.setTime(num)
@@ -33,8 +38,8 @@ watchEffect(() => {
 
 <template>
   <div class="flex items-center">
-    <!-- Тип выбора -->
     <Alert class="flex items-center gap-2 p-1 px-3">
+      <!-- Тип выбора -->
       <ToggleGroup type="single" v-model="currentType" class="flex gap-1">
         <ToggleGroupItem
           value="Время"
