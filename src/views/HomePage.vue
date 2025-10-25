@@ -198,7 +198,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Typing Container -->
-      <div v-if="!showResults" class="w-full max-w-4xl px-8">
+      <div v-if="!showResults" class="w-full">
         <!-- Timer -->
         <div
           :class="[
