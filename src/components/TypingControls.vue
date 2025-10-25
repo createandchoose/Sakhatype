@@ -4,7 +4,7 @@
     <span class="separator">|</span>
     <div class="toggle-group" ref="toggleGroup">
       <div
-        v-for="time in [15, 30, 60, 120]"
+        v-for="time in [15, 30, 60, 120, 200]"
         :key="time"
         :class="['time-btn', { active: modelValue === time }]"
         role="button"

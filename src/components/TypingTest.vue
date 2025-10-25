@@ -285,8 +285,8 @@ onUnmounted(() => {
 
 .text-display {
   font-family: 'Benzin-Bold';
-  font-size: 32px;
-  line-height: 1.2;
+  font-size: 24px;
+  line-height: 0.9;
   color: #666666;
   margin-bottom: 40px;
   position: relative;
