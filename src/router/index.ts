@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import MainLayout from '@/layouts/Main.vue'
 import HomePage from '@/views/HomePage.vue'
 import Leaderboard from '@/views/Leaderboard.vue'
+import Profile from '@/views/Profile.vue'
 
 // Роуты с возможностью динамических параметров
 const routes = [
@@ -21,6 +22,11 @@ const routes = [
         path: 'leaderboard/:filter?', // Динамический параметр filter (необязательный)
         name: 'Leaderboard',
         component: Leaderboard,
+      },
+      {
+        path: 'profile', // Динамический параметр filter (необязательный)
+        name: 'Profile',
+        component: Profile,
       },
     ],
   },
