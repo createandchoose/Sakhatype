@@ -25,6 +25,16 @@ const { isDark } = useTheme()
         <Trophy :size="16" />
         <span>Лидерборд</span>
       </router-link>
+
+      <router-link
+        to="/profile"
+        :class="[
+          'flex items-center gap-2 transition-colors text-sm select-none cursor-pointer',
+          isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900',
+        ]"
+      >
+        <span>(профиль тест фронт)</span>
+      </router-link>
     </div>
 
     <!-- Логин -->
